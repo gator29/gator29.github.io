@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impossible task</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            line-height: 1.6;
+        }
+        form {
+            margin-top: 20px;
+        }
+        .left, .right {
+            display: inline-block;
+            vertical-align: top;
+            width: 15%;
+            margin-right: 5%;
+        }
+        .right {
+            margin-right: 0;
+        }
+    </style>
+    <!-- give me jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>So impossible 🙃</h1>
+    <p>I got told calculating with time is impossible to do for a computer... yeah right.</p>
+    <form action="" id="timeForm">
+        <div class="left">
+            <p>
+                <label for="start1">Enter planning start:</label>
+                <input type="time" name="start1" id="">
+            </p>
+            <p>
+                <label for="vos1">Enter planning vos:</label>
+                <input type="time" name="vos1" id="">
+            </p>
+            <p>
+                <label for="end1">Enter planning end:</label>
+                <input type="time" name="end1" id="">
+            </p>
+        </div>
+        <div class="right">
+            <p>
+                <label for="start2">Enter your start time:</label>
+                <input type="time" name="start2" id="">
+            </p>
+            <p>
+                <label for="vos2">Enter your vos time:</label>
+                <input type="time" name="vos2" id="">
+            </p>
+            <p>
+                <label for="end2">Enter your end time:</label>
+                <input type="time" name="end2" id="">
+            </p>
+        </div>
+        <p>
+            <input type="checkbox" name="break" id="break">
+            <label for="break">30 min break</label><br>
+            <input type="submit" value="Submit">
+        </p>
+        <p id="result"></p>
+        <p id="error" style="color: red;"></p>
+    </form>
+    <script>
+        $(document).ready(function() {
+            $('#timeForm').on('submit', function(event){
+                event.preventDefault();
+
+                // compare the inputs and calculate the difference
+                const start1 = $('input[name="start1"]').val();
+                const vos1 = $('input[name="vos1"]').val();
+                const end1 = $('input[name="end1"]').val();
+                const start2 = $('input[name="start2"]').val();
+                const vos2 = $('input[name="vos2"]').val();
+                const end2 = $('input[name="end2"]').val();
+
+                // Check if all fields are filled
+                if (!start1 || !vos1 || !end1 || !start2 || !vos2 || !end2) {
+                    $('#error').text('Please fill in all time fields.');
+                    $('#result').text('');
+                    return;
+                }
+                $('#error').text('');
+
+                function convertMinutesToHours(minutes) {
+                    const hours = Math.floor(minutes / 60);
+                    const remainingMinutes = minutes % 60;
+                    return `${hours}h ${remainingMinutes}m`;
+                }
+
+                // Calculate the time differences
+                // planning times
+                const start1Time = new Date(`1970-01-01T${start1}:00`);
+                const vos1Time = new Date(`1970-01-01T${vos1}:00`);
+                const end1Time = new Date(`1970-01-01T${end1}:00`);
+                const totalTimePlanning = end1Time - start1Time; // total time planning in milliseconds
+                // worked times
+                const start2Time = new Date(`1970-01-01T${start2}:00`);
+                const vos2Time = new Date(`1970-01-01T${vos2}:00`);
+                const end2Time = new Date(`1970-01-01T${end2}:00`);
+                const totalTimeWorked = end2Time - start2Time; // total time worked in milliseconds
+                const breakTime = $('#break').is(':checked') ? 30 : 0; // 30 minutes in minutes
+
+                // Calculate the time differences
+                const start1Diff = start1Time - start2Time;
+                const vos1Diff = vos1Time - vos2Time;
+                const end1Diff = end1Time - end2Time;
+                const result = [];
+                result.push(`Start planning: ${start1}, Vos planning: ${vos1}, End planning: ${end1}`);
+                result.push(`Your start time: ${start2}, Your vos time: ${vos2}, Your end time: ${end2}`);
+                result.push(`Start planning - Your start time: ${start1Diff / 60000} minutes`);
+                result.push(`Vos planning - Your vos time: ${vos1Diff / 60000} minutes`);
+                result.push(`End planning - Your end time: ${end1Diff / 60000} minutes`);
+                result.push(`Total time planning: ${convertMinutesToHours((totalTimePlanning / 60000) - breakTime)}`);
+                result.push(`total time worked: ${convertMinutesToHours((totalTimeWorked / 60000) - breakTime)}`);
+                // Display the result, join the array with <br> for line breaks but not in the array
+                $('#result').html(result.join('<br>'));
+            }); 
+        });
+    </script>
+</body>
+</html>
