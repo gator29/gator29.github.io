@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impossible task</title>
+    <title>Shift Time Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         h1 {
             color: #333;
@@ -18,54 +21,124 @@
         form {
             margin-top: 20px;
         }
-        .left, .right {
-            display: inline-block;
-            vertical-align: top;
-            width: 15%;
-            margin-right: 5%;
+        .form-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
         }
-        .right {
-            margin-right: 0;
+        .left, .right {
+            flex: 1;
+            min-width: 250px;
+        }
+        .left p, .right p {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="time"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #005a87;
+        }
+        #result {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border-left: 4px solid #007cba;
+            display: none; /* Hidden by default */
+        }
+        #result:not(:empty) {
+            display: block; /* Only show when there's content */
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .form-container {
+                flex-direction: column;
+            }
+            .left, .right {
+                width: 100%;
+            }
+            h1 {
+                font-size: 24px;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            input[type="time"] {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
         }
     </style>
     <!-- give me jquery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>So impossible 🙃</h1>
-    <p>I got told calculating with time is impossible to do for a computer... yeah right.</p>
+    <h1>Shift time calculator</h1>
     <form action="" id="timeForm">
-        <div class="left">
-            <p>
-                <label for="start1">Enter planning start:</label>
-                <input type="time" name="start1" id="">
-            </p>
-            <p>
-                <label for="vos1">Enter planning vos:</label>
-                <input type="time" name="vos1" id="">
-            </p>
-            <p>
-                <label for="end1">Enter planning end:</label>
-                <input type="time" name="end1" id="">
-            </p>
-        </div>
-        <div class="right">
-            <p>
-                <label for="start2">Enter your start time:</label>
-                <input type="time" name="start2" id="">
-            </p>
-            <p>
-                <label for="vos2">Enter your vos time:</label>
-                <input type="time" name="vos2" id="">
-            </p>
-            <p>
-                <label for="end2">Enter your end time:</label>
-                <input type="time" name="end2" id="">
-            </p>
+        <div class="form-container">
+            <div class="left">
+                <p>
+                    <label for="start1">Enter planning start:</label>
+                    <input type="time" name="start1" id="">
+                </p>
+                <p>
+                    <label for="vos1">Enter planning vos:</label>
+                    <input type="time" name="vos1" id="">
+                </p>
+                <p>
+                    <label for="end1">Enter planning end:</label>
+                    <input type="time" name="end1" id="">
+                </p>
+            </div>
+            <div class="right">
+                <p>
+                    <label for="start2">Enter your start time:</label>
+                    <input type="time" name="start2" id="">
+                </p>
+                <p>
+                    <label for="vos2">Enter your vos time:</label>
+                    <input type="time" name="vos2" id="">
+                </p>
+                <p>
+                    <label for="end2">Enter your end time:</label>
+                    <input type="time" name="end2" id="">
+                </p>
+            </div>
         </div>
         <p>
-            <input type="checkbox" name="break" id="break">
-            <label for="break">30 min break</label><br>
+            <label for="break">
+                <input type="checkbox" name="break" id="break">
+                30 min break
+            </label><br>
             <input type="submit" value="Submit">
         </p>
         <p id="result"></p>
@@ -84,9 +157,9 @@
                 const vos2 = $('input[name="vos2"]').val();
                 const end2 = $('input[name="end2"]').val();
 
-                // Check if all fields are filled
-                if (!start1 || !vos1 || !end1 || !start2 || !vos2 || !end2) {
-                    $('#error').text('Please fill in all time fields.');
+                // Check if required fields are filled (vos fields are optional)
+                if (!start1 || !end1 || !start2 || !end2) {
+                    $('#error').text('Please fill in all required time fields (start and end times).');
                     $('#result').text('');
                     return;
                 }
@@ -101,26 +174,38 @@
                 // Calculate the time differences
                 // planning times
                 const start1Time = new Date(`1970-01-01T${start1}:00`);
-                const vos1Time = new Date(`1970-01-01T${vos1}:00`);
+                const vos1Time = vos1 ? new Date(`1970-01-01T${vos1}:00`) : null;
                 const end1Time = new Date(`1970-01-01T${end1}:00`);
                 const totalTimePlanning = end1Time - start1Time; // total time planning in milliseconds
                 // worked times
                 const start2Time = new Date(`1970-01-01T${start2}:00`);
-                const vos2Time = new Date(`1970-01-01T${vos2}:00`);
+                const vos2Time = vos2 ? new Date(`1970-01-01T${vos2}:00`) : null;
                 const end2Time = new Date(`1970-01-01T${end2}:00`);
                 const totalTimeWorked = end2Time - start2Time; // total time worked in milliseconds
                 const breakTime = $('#break').is(':checked') ? 30 : 0; // 30 minutes in minutes
 
                 // Calculate the time differences
                 const start1Diff = start1Time - start2Time;
-                const vos1Diff = vos1Time - vos2Time;
+                const vos1Diff = vos1 && vos2 ? vos1Time - vos2Time : null;
                 const end1Diff = end1Time - end2Time;
+                
+                function formatTimeDifference(diffInMs) {
+                    const minutes = Math.abs(diffInMs / 60000);
+                    if (minutes === 0) {
+                        return 'exactly as planned';
+                    }
+                    const isLater = diffInMs < 0;
+                    return `${minutes} minutes ${isLater ? 'later than planned' : 'earlier than planned'}`;
+                }
+                
                 const result = [];
-                result.push(`Start planning: ${start1}, Vos planning: ${vos1}, End planning: ${end1}`);
-                result.push(`Your start time: ${start2}, Your vos time: ${vos2}, Your end time: ${end2}`);
-                result.push(`Start planning - Your start time: ${start1Diff / 60000} minutes`);
-                result.push(`Vos planning - Your vos time: ${vos1Diff / 60000} minutes`);
-                result.push(`End planning - Your end time: ${end1Diff / 60000} minutes`);
+                result.push(`Start planning: ${start1}, Vos planning: ${vos1 || 'Not provided'}, End planning: ${end1}`);
+                result.push(`Your start time: ${start2}, Your vos time: ${vos2 || 'Not provided'}, Your end time: ${end2}`);
+                result.push(`Start time difference: ${formatTimeDifference(start1Diff)}`);
+                if (vos1Diff !== null) {
+                    result.push(`Vos time difference: ${formatTimeDifference(vos1Diff)}`);
+                }
+                result.push(`End time difference: ${formatTimeDifference(end1Diff)}`);
                 result.push(`Total time planning: ${convertMinutesToHours((totalTimePlanning / 60000) - breakTime)}`);
                 result.push(`total time worked: ${convertMinutesToHours((totalTimeWorked / 60000) - breakTime)}`);
                 // Display the result, join the array with <br> for line breaks but not in the array
