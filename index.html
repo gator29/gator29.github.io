@@ -208,6 +208,19 @@
                 result.push(`End time difference: ${formatTimeDifference(end1Diff)}`);
                 result.push(`Total time planning: ${convertMinutesToHours((totalTimePlanning / 60000) - breakTime)}`);
                 result.push(`total time worked: ${convertMinutesToHours((totalTimeWorked / 60000) - breakTime)}`);
+                
+                // Calculate total worked time difference
+                const plannedMinutes = (totalTimePlanning / 60000) - breakTime;
+                const workedMinutes = (totalTimeWorked / 60000) - breakTime;
+                const timeDifference = workedMinutes - plannedMinutes;
+                
+                if (timeDifference === 0) {
+                    result.push(`Total time difference: exactly as planned`);
+                } else if (timeDifference > 0) {
+                    result.push(`Total time difference: ${timeDifference} minutes more than planned`);
+                } else {
+                    result.push(`Total time difference: ${Math.abs(timeDifference)} minutes less than planned`);
+                }
                 // Display the result, join the array with <br> for line breaks but not in the array
                 $('#result').html(result.join('<br>'));
             }); 
