@@ -111,7 +111,7 @@
                     <input type="time" name="start1" id="">
                 </p>
                 <p>
-                    <label for="vos1">Enter planning vos (optional):</label>
+                    <label for="vos1">Enter planning vos:</label>
                     <input type="time" name="vos1" id="">
                 </p>
                 <p>
@@ -125,7 +125,7 @@
                     <input type="time" name="start2" id="">
                 </p>
                 <p>
-                    <label for="vos2">Enter your vos time (optional):</label>
+                    <label for="vos2">Enter your vos time:</label>
                     <input type="time" name="vos2" id="">
                 </p>
                 <p>
@@ -199,28 +199,46 @@
                 }
                 
                 const result = [];
-                result.push(`Start planning: ${start1}, Vos planning: ${vos1 || 'Not provided'}, End planning: ${end1}`);
-                result.push(`Your start time: ${start2}, Your vos time: ${vos2 || 'Not provided'}, Your end time: ${end2}`);
+                // result.push(`Start planning: ${start1}, Vos planning: ${vos1 || 'Not provided'}, End planning: ${end1}`);
+                // result.push(`Your start time: ${start2}, Your vos time: ${vos2 || 'Not provided'}, Your end time: ${end2}`);
                 result.push(`Start time difference: ${formatTimeDifference(start1Diff)}`);
-                if (vos1Diff !== null) {
-                    result.push(`Vos time difference: ${formatTimeDifference(vos1Diff)}`);
-                }
-                result.push(`End time difference: ${formatTimeDifference(end1Diff)}`);
+                // if (vos1Diff !== null) {
+                //     result.push(`Vos time difference: ${formatTimeDifference(vos1Diff)}`);
+                // }
+                // result.push(`End time difference: ${formatTimeDifference(end1Diff)}`);
                 result.push(`Total time planning: ${convertMinutesToHours((totalTimePlanning / 60000) - breakTime)}`);
                 result.push(`total time worked: ${convertMinutesToHours((totalTimeWorked / 60000) - breakTime)}`);
                 
+                // Calculate vos worked time difference if both vos1 and vos2 are provided
+                if (vos1 && vos2) {
+                    const vosPlannedMinutes = (vos1Time - start1Time) / 60000;
+                    const vosWorkedMinutes = (vos2Time - start2Time) / 60000;
+                    const vosWorkedDiff = vosWorkedMinutes - vosPlannedMinutes;
+                    if (vosWorkedDiff === 0) {
+                        result.push(`Vos worked time difference: exactly as planned`);
+                    } else if (vosWorkedDiff > 0) {
+                        result.push(`Vos worked time difference: ${vosWorkedDiff} minutes more than planned`);
+                    } else {
+                        result.push(`Vos worked time difference: ${Math.abs(vosWorkedDiff)} minutes less than planned`);
+                    }
+                }
+
                 // Calculate total worked time difference
                 const plannedMinutes = (totalTimePlanning / 60000) - breakTime;
                 const workedMinutes = (totalTimeWorked / 60000) - breakTime;
                 const timeDifference = workedMinutes - plannedMinutes;
                 
                 if (timeDifference === 0) {
-                    result.push(`Total time difference: exactly as planned`);
+                    result.push(`Total worked time difference: exactly as planned`);
                 } else if (timeDifference > 0) {
-                    result.push(`Total time difference: ${timeDifference} minutes more than planned`);
+                    result.push(`Total worked time difference: ${timeDifference} minutes more than planned`);
                 } else {
-                    result.push(`Total time difference: ${Math.abs(timeDifference)} minutes less than planned`);
+                    result.push(`Total worked time difference: ${Math.abs(timeDifference)} minutes less than planned`);
                 }
+
+                
+                
+
                 // Display the result, join the array with <br> for line breaks but not in the array
                 $('#result').html(result.join('<br>'));
             }); 
